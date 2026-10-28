@@ -1,13 +1,17 @@
-# Reflection
+# Lab 5: Static Code Analysis Reflection
 
-1. **Which tool found the most issues, and which was most useful?**
-   Pylint found the most (21 messages), mostly docstrings and style. Bandit found the fewest (2) but they mattered most: `eval` on caller input is a code-execution hole.
+## 1. What is the purpose of static code analysis?
 
-2. **Did any tool report something that was not worth fixing, or miss something real?**
-   Missing-docstring warnings are low value on a small script. All three tools missed the logic bugs: renewals raising everyone's fine, negative fines, and an int book id being accepted. I found those by running the program and reading its output.
+Static code analysis examines source code without running it to find bugs, security weaknesses and coding-standard violations early, before they reach users. Pylint checks code quality, Bandit checks security, and Flake8 checks PEP 8 style, so together they cover different parts of the same file.
 
-3. **How did fixing one issue affect others?**
-   Replacing `global` with `loans.clear()`/`update()` and `with open` removed several Pylint messages at once. The mutable default fix changed the printed loan counts, which showed the old numbers were wrong.
+## 2. What did the three tools identify?
 
-4. **How would you use static analysis in a real project?**
-   Run Flake8 and Pylint in a pre-commit hook and in CI, with Bandit as a blocking check for Medium and above. Static analysis catches whole classes of mistakes cheaply but does not replace tests or reading the output.
+Pylint (6.07/10 before) flagged a mutable default argument, a bare `except`, `global` statements, files opened without `with` or an encoding, `eval`, a non-snake_case function name, an unused import and missing docstrings. Bandit flagged `eval` (Medium) and a try/except/pass block (Low). Flake8 flagged 14 formatting problems: missing blank lines, two overlong lines, an unused import and a bare `except`.
+
+## 3. How did the fixes improve the program?
+
+`eval` on a caller-supplied rule was replaced by an AST evaluator that only allows numbers, `days` and `+ - *`, so a rule can no longer run arbitrary code. Specific exceptions replaced the silent `except: pass`. The mutable default, `global` statements and unclosed files were fixed. Pylint went from 6.07 to 10.00, and Bandit and Flake8 now report nothing. Running the program also exposed bugs the tools missed: renewing a loan raised the fine rate for every student, negative days gave a negative fine, and an integer book id was accepted. These are fixed too.
+
+## 4. What did you learn from this lab?
+
+A program can run without errors and still be insecure or wrong. The tools caught the unsafe `eval` and the style issues, but none of them caught the renewal bug that inflated fines, which I only found by running the program and reading its output. Rerunning the tools after each fix gave measurable proof that the findings were gone.

@@ -1,8 +1,16 @@
-# Issues found in library_system.py
+# Lab 5: Static Code Analysis
 
-Line numbers refer to the original file. Reports: `reports/before` and `reports/after`.
+## Project
+**Project:** Library Fine and Book Renewal System  
+**File analyzed:** `library_system.py`  
+**Tools:** Pylint, Bandit, Flake8  
+**Reports:** `lab5_reports/` (`*_before.txt`, `*_after.txt`)
 
-| Issue | Type | Line(s) | Description | Fix Approach |
+## Issues Identified and Resolved
+
+Line numbers refer to the original file.
+
+| Issue | Type | Original line(s) | Description | Fix Approach |
 |-------|------|---------|-------------|--------------|
 | Use of `eval` (B307, W0123) | Security, Medium | 45 | `fine_from_rule` runs `eval` on a caller-supplied string, so a rule can execute arbitrary code. | Parse with `ast` and evaluate only numbers, `days`, and `+ - *`; anything else raises `ValueError`. |
 | Bare `except` with `pass` (B110, E722, W0702) | Security/Bug, Low | 21-22 | `return_book` swallows every error, including `KeyboardInterrupt`, and hides failed returns. | Catch `KeyError` and `ValueError` only and print that no such loan exists. |
@@ -19,7 +27,7 @@ Line numbers refer to the original file. Reports: `reports/before` and `reports/
 | Missing `__main__` guard | Quality | 68 | `main()` ran on import. | `if __name__ == "__main__":`. |
 | Blank lines and long lines (E302, E305, E501) | Style | 9-68, 14, 31 | PEP 8 spacing and 79-column limit. | Two blank lines around top-level defs; wrapped long strings. |
 
-## Scores
+## Verification Results
 
 | Tool | Before | After |
 |------|--------|-------|
